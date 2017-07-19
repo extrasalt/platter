@@ -26,14 +26,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
    * a path of `/`.
    */
   def index() = Action { implicit request: Request[AnyContent] =>
-    val tweets = List("Hello", "It's me", "How are you?", "Hello from the other side")
-    Ok(views.html.index(tweets))
+    val ft = MongoClient().getDatabase("platter").getCollection("tweet").find().toFuture()
+    val tweets = Await.result(ft, Duration(10, TimeUnit.SECONDS))
+    val contentList = tweets.toList.map((x: Document) =>x.getString("content"))
+    Ok(views.html.index(contentList))
   }
 
   def submit() = Action{ implicit request: Request[AnyContent] =>
 
-    val collection = MongoClient().getDatabase("platter").getCollection("tweet")  
-    Await.result(collection.insertOne(Document("content"->"it's me")).toFuture, Duration(10, TimeUnit.SECONDS))
+    val collection = MongoClient().getDatabase("platter").getCollection("tweet")
+    val future = collection.insertOne(Document("content"->"it's me")).toFuture
+    Await.result(future, Duration(10, TimeUnit.SECONDS))
 
     Redirect(routes.HomeController.index()).flashing("success"-> "tweet saved")
   }
