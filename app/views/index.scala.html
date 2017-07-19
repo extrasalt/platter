@@ -1,8 +1,12 @@
-@()
+@(tweets: List[String])
 
 
 @helper.form(action=routes.HomeController.submit()){
 <input type="text">
     <input type="submit">
+}
+
+@for(tweet <- tweets){
+    <p>@tweet</p>
 }
 
