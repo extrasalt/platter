@@ -1,8 +1,10 @@
 package controllers
 
 import javax.inject._
+
 import play.api._
 import play.api.mvc._
+import views.html.helper.CSRF
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -21,4 +23,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
+
+  def submit() = Action{ implicit request: Request[AnyContent] =>
+    Redirect(routes.HomeController.index()).flashing("success"-> "tweet saved")
+  }
+
+
 }
