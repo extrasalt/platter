@@ -34,8 +34,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   def submit() = Action{ implicit request: Request[AnyContent] =>
 
+    val content = request.body.asFormUrlEncoded.get("content").head
+
     val collection = MongoClient().getDatabase("platter").getCollection("tweet")
-    val future = collection.insertOne(Document("content"->"it's me")).toFuture
+    val future = collection.insertOne(Document("content"->content)).toFuture
     Await.result(future, Duration(10, TimeUnit.SECONDS))
 
     Redirect(routes.HomeController.index()).flashing("success"-> "tweet saved")
